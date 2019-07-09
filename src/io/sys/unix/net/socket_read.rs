@@ -73,9 +73,10 @@ impl<'a> EventSource for SocketRead<'a> {
         // till here the io may be done in other thread
 
         // there is event, re-run the coroutine
-        if io_data.io_flag.load(Ordering::Acquire) {
-            return io_data.schedule();
-        }
+        // if io_data.io_flag.load(Ordering::Acquire) {
+        //     return io_data.schedule();
+        // }
+        self.io_data.reset(true);
 
         // register the cancel io data
         cancel.set_io(io_data);

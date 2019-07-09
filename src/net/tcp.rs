@@ -182,25 +182,25 @@ impl Read for TcpStream {
             return self.sys.read(buf);
         }
 
-        #[cfg(unix)]
-        {
-            self.io.reset(true);
-            // this is an earlier return try for nonblocking read
-            // it's useful for server but not necessary for client
-            match self.sys.read(buf) {
-                Ok(n) => return Ok(n),
-                #[cold]
-                Err(e) => {
-                    // raw_os_error is faster than kind
-                    let raw_err = e.raw_os_error();
-                    if raw_err == Some(libc::EAGAIN) || raw_err == Some(libc::EWOULDBLOCK) {
-                        // do nothing here
-                    } else {
-                        return Err(e);
-                    }
-                }
-            }
-        }
+        // #[cfg(unix)]
+        // {
+        //     self.io.reset(true);
+        //     // this is an earlier return try for nonblocking read
+        //     // it's useful for server but not necessary for client
+        //     match self.sys.read(buf) {
+        //         Ok(n) => return Ok(n),
+        //         #[cold]
+        //         Err(e) => {
+        //             // raw_os_error is faster than kind
+        //             let raw_err = e.raw_os_error();
+        //             if raw_err == Some(libc::EAGAIN) || raw_err == Some(libc::EWOULDBLOCK) {
+        //                 // do nothing here
+        //             } else {
+        //                 return Err(e);
+        //             }
+        //         }
+        //     }
+        // }
 
         let mut reader = net_impl::SocketRead::new(self, buf, self.read_timeout.get());
         yield_with(&reader);
@@ -219,24 +219,24 @@ impl Write for TcpStream {
             return self.sys.write(buf);
         }
 
-        #[cfg(unix)]
-        {
-            self.io.reset(false);
-            // this is an earlier return try for nonblocking write
-            match self.sys.write(buf) {
-                Ok(n) => return Ok(n),
-                #[cold]
-                Err(e) => {
-                    // raw_os_error is faster than kind
-                    let raw_err = e.raw_os_error();
-                    if raw_err == Some(libc::EAGAIN) || raw_err == Some(libc::EWOULDBLOCK) {
-                        // do nothing here
-                    } else {
-                        return Err(e);
-                    }
-                }
-            }
-        }
+        // #[cfg(unix)]
+        // {
+        //     self.io.reset(false);
+        //     // this is an earlier return try for nonblocking write
+        //     match self.sys.write(buf) {
+        //         Ok(n) => return Ok(n),
+        //         #[cold]
+        //         Err(e) => {
+        //             // raw_os_error is faster than kind
+        //             let raw_err = e.raw_os_error();
+        //             if raw_err == Some(libc::EAGAIN) || raw_err == Some(libc::EWOULDBLOCK) {
+        //                 // do nothing here
+        //             } else {
+        //                 return Err(e);
+        //             }
+        //         }
+        //     }
+        // }
 
         let mut writer = net_impl::SocketWrite::new(self, buf, self.write_timeout.get());
         yield_with(&writer);
