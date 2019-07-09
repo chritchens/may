@@ -160,8 +160,9 @@ impl Selector {
     pub fn add_fd(&self, io_data: IoData) -> io::Result<IoData> {
         let mut info = EpollEvent::new(
             EpollFlags::EPOLLIN
-                | EpollFlags::EPOLLOUT
-                | EpollFlags::EPOLLRDHUP
+                // | EpollFlags::EPOLLOUT
+                // | EpollFlags::EPOLLRDHUP
+                // | EpollFlags::EPOLLONESHOT
                 | EpollFlags::EPOLLET,
             io_data.as_ref() as *const _ as _,
         );
@@ -173,6 +174,23 @@ impl Selector {
         epoll_ctl(epfd, EpollOp::EpollCtlAdd, fd, &mut info)
             .map_err(from_nix_error)
             .map(|_| io_data)
+    }
+
+    pub fn mod_fd(&self, io_data: &IoData, b_read: bool) -> io::Result<()> {
+        let mut flag = EpollFlags::EPOLLONESHOT | EpollFlags::EPOLLET;
+        if b_read {
+            flag |= EpollFlags::EPOLLIN | EpollFlags::EPOLLRDHUP;
+        } else {
+            flag |= EpollFlags::EPOLLOUT;
+        }
+
+        let mut info = EpollEvent::new(flag, io_data.as_ref() as *const _ as _);
+
+        let fd = io_data.fd;
+        let id = fd as usize % self.vec.len();
+        let epfd = self.vec[id].epfd;
+        info!("mod fd to epoll select, fd={:?}", fd);
+        epoll_ctl(epfd, EpollOp::EpollCtlMod, fd, &mut info).map_err(from_nix_error)
     }
 
     #[inline]

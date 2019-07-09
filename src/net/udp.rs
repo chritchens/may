@@ -85,7 +85,7 @@ impl UdpSocket {
 
         #[cfg(unix)]
         {
-            self.io.reset();
+            self.io.reset(false);
             // this is an earlier return try for nonblocking read
             match self.sys.send_to(buf, &addr) {
                 Ok(n) => return Ok(n),
@@ -119,7 +119,7 @@ impl UdpSocket {
 
         #[cfg(unix)]
         {
-            self.io.reset();
+            self.io.reset(true);
             // this is an earlier return try for nonblocking read
             match self.sys.recv_from(buf) {
                 Ok(n) => return Ok(n),
@@ -153,7 +153,7 @@ impl UdpSocket {
 
         #[cfg(unix)]
         {
-            self.io.reset();
+            self.io.reset(false);
             // this is an earlier return try for nonblocking write
             match self.sys.send(buf) {
                 Ok(n) => return Ok(n),
@@ -187,7 +187,7 @@ impl UdpSocket {
 
         #[cfg(unix)]
         {
-            self.io.reset();
+            self.io.reset(true);
             // this is an earlier return try for nonblocking read
             match self.sys.recv(buf) {
                 Ok(n) => return Ok(n),

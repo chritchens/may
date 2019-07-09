@@ -58,8 +58,8 @@ impl<T: AsRawHandle> CoIo<T> {
 
     /// reset internal io data
     #[allow(dead_code)]
-    pub(crate) fn io_reset(&self) {
-        self.io.reset()
+    pub(crate) fn io_reset(&self, b_read: bool) {
+        self.io.reset(b_read)
     }
 
     /// check current ctx
@@ -120,7 +120,7 @@ impl<T: AsRawHandle + Read> Read for CoIo<T> {
             return self.inner.read(buf);
         }
 
-        self.io.reset();
+        self.io.reset(true);
         let mut reader = PipeRead::new(self, buf, self.read_timeout.get());
         yield_with(&reader);
         reader.done()
@@ -133,7 +133,7 @@ impl<T: AsRawHandle + Write> Write for CoIo<T> {
             return self.inner.write(buf);
         }
 
-        self.io.reset();
+        self.io.reset(false);
         let mut writer = PipeWrite::new(self, buf, self.write_timeout.get());
         yield_with(&writer);
         writer.done()

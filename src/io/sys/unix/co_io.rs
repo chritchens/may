@@ -97,8 +97,8 @@ impl<T: AsRawFd> CoIo<T> {
     }
 
     /// reset internal io data
-    pub(crate) fn io_reset(&self) {
-        self.io.reset()
+    pub(crate) fn io_reset(&self, b_read: bool) {
+        self.io.reset(b_read)
     }
 
     /// check current ctx
@@ -160,7 +160,7 @@ impl<T: AsRawFd + Read> Read for CoIo<T> {
             return self.inner.read(buf);
         }
 
-        self.io.reset();
+        self.io.reset(true);
         // this is an earlier return try for nonblocking read
         // it's useful for server but not necessary for client
         match self.inner.read(buf) {
@@ -190,7 +190,7 @@ impl<T: AsRawFd + Write> Write for CoIo<T> {
             return self.inner.write(buf);
         }
 
-        self.io.reset();
+        self.io.reset(false);
         // this is an earlier return try for nonblocking write
         match self.inner.write(buf) {
             Ok(n) => return Ok(n),

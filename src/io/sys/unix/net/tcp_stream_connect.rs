@@ -59,7 +59,10 @@ impl TcpStreamConnect {
                 self.is_connected = true;
                 Ok(true)
             }
-            Err(ref e) if e.raw_os_error() == Some(libc::EINPROGRESS) => Ok(false),
+            Err(ref e) if e.raw_os_error() == Some(libc::EINPROGRESS) => {
+                self.io_data.reset(false);
+                Ok(false)
+            }
             Err(e) => Err(e),
         }
     }

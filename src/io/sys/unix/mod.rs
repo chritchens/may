@@ -159,8 +159,12 @@ impl IoData {
 
     // clear the io flag
     #[inline]
-    pub fn reset(&self) {
+    pub fn reset(&self, b_read: bool) {
         self.io_flag.store(false, Ordering::Relaxed);
+        get_scheduler()
+            .get_selector()
+            .mod_fd(self, b_read)
+            .expect("mod_fd");
     }
 }
 

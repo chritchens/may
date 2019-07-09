@@ -184,7 +184,7 @@ impl Read for TcpStream {
 
         #[cfg(unix)]
         {
-            self.io.reset();
+            self.io.reset(true);
             // this is an earlier return try for nonblocking read
             // it's useful for server but not necessary for client
             match self.sys.read(buf) {
@@ -221,7 +221,7 @@ impl Write for TcpStream {
 
         #[cfg(unix)]
         {
-            self.io.reset();
+            self.io.reset(false);
             // this is an earlier return try for nonblocking write
             match self.sys.write(buf) {
                 Ok(n) => return Ok(n),
@@ -324,7 +324,7 @@ impl TcpListener {
 
         #[cfg(unix)]
         {
-            self.io.reset();
+            self.io.reset(true);
             match self.sys.accept() {
                 Ok((s, a)) => return TcpStream::new(s).map(|s| (s, a)),
                 #[cold]

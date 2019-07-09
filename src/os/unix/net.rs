@@ -411,7 +411,7 @@ impl UnixListener {
             return Ok((UnixStream(CoIo::new(s)?), a));
         }
 
-        self.0.io_reset();
+        self.0.io_reset(true);
         match self.0.inner().accept() {
             Ok((s, a)) => return Ok((UnixStream(CoIo::new(s)?), a)),
             #[cold]
@@ -804,7 +804,7 @@ impl UnixDatagram {
             return self.0.inner().recv_from(buf);
         }
 
-        self.0.io_reset();
+        self.0.io_reset(true);
         // this is an earlier return try for nonblocking read
         match self.0.inner().recv_from(buf) {
             Ok(n) => return Ok(n),
@@ -844,7 +844,7 @@ impl UnixDatagram {
             return self.0.inner().recv(buf);
         }
 
-        self.0.io_reset();
+        self.0.io_reset(true);
         // this is an earlier return try for nonblocking read
         match self.0.inner().recv(buf) {
             Ok(n) => return Ok(n),
@@ -883,7 +883,7 @@ impl UnixDatagram {
             return self.0.inner().send_to(buf, path);
         }
 
-        self.0.io_reset();
+        self.0.io_reset(false);
         // this is an earlier return try for nonblocking read
         match self.0.inner().send_to(buf, path.as_ref()) {
             Ok(n) => return Ok(n),
@@ -926,7 +926,7 @@ impl UnixDatagram {
             return self.0.inner().send(buf);
         }
 
-        self.0.io_reset();
+        self.0.io_reset(false);
         // this is an earlier return try for nonblocking write
         match self.0.inner().send(buf) {
             Ok(n) => return Ok(n),

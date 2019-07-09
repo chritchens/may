@@ -36,7 +36,7 @@ impl IoData {
     }
 
     // clear the io flag
-    pub fn reset(&self) {}
+    pub fn reset(&self, _: bool) {}
 }
 
 impl fmt::Debug for IoData {
